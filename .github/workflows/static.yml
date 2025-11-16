@@ -1,4 +1,4 @@
-name: Deploy Pages
+name: Deploy website
 
 on:
   push:
@@ -10,25 +10,38 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build
+
+      - name: Build site
         run: |
           npm install
           npm run build
-      - uses: actions/upload-pages-artifact@v3
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./build
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deploy-pages.outputs.page_url }}
     steps:
-      - uses: actions/deploy-pages@v4
-        id: deployment
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v4
+        with:
+          enablement: true   # 👈 Automatically enables Pages if disabled
+
+      - name: Deploy
+        id: deploy-pages
+        uses: actions/deploy-pages@v4
