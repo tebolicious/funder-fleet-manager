@@ -2,13 +2,13 @@ name: Deploy website
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read       # Required
+  pages: write         # REQUIRED for creating/enabling Pages
+  id-token: write      # Required
 
 concurrency:
   group: "pages"
@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build site
+      - name: Build
         run: |
           npm install
           npm run build
@@ -28,20 +28,19 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./build
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deploy-pages.outputs.page_url }}
     steps:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4
         with:
-          enablement: true   # 👈 Automatically enables Pages if disabled
+          enablement: true  # auto-enable Pages
 
-      - name: Deploy
-        id: deploy-pages
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
