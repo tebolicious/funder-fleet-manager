@@ -3,6 +3,8 @@ import { Vehicle, funders } from '@/data/mockData';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { format, differenceInDays } from 'date-fns';
 import { CheckCircle2 } from 'lucide-react';
@@ -17,6 +19,9 @@ interface BookingModalProps {
 
 export const BookingModal = ({ open, onOpenChange, vehicle, startDate, endDate }: BookingModalProps) => {
   const [selectedFunder, setSelectedFunder] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const [surname, setSurname] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
   const [isConfirmed, setIsConfirmed] = useState(false);
   const { toast } = useToast();
 
@@ -36,6 +41,24 @@ export const BookingModal = ({ open, onOpenChange, vehicle, startDate, endDate }
       return;
     }
 
+    if (!name || !surname || !email) {
+      toast({
+        title: 'User Details Required',
+        description: 'Please fill in all user details to proceed with the booking.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      toast({
+        title: 'Invalid Email',
+        description: 'Please enter a valid email address.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsConfirmed(true);
     toast({
       title: 'Booking Confirmed!',
@@ -46,6 +69,9 @@ export const BookingModal = ({ open, onOpenChange, vehicle, startDate, endDate }
   const handleClose = () => {
     setIsConfirmed(false);
     setSelectedFunder('');
+    setName('');
+    setSurname('');
+    setEmail('');
     onOpenChange(false);
   };
 
@@ -72,6 +98,14 @@ export const BookingModal = ({ open, onOpenChange, vehicle, startDate, endDate }
             <div className="bg-muted rounded-lg p-6 space-y-3">
               <h3 className="font-semibold text-lg">Booking Details</h3>
               <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Name</p>
+                  <p className="font-medium">{name} {surname}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Email</p>
+                  <p className="font-medium">{email}</p>
+                </div>
                 <div>
                   <p className="text-muted-foreground">Vehicle</p>
                   <p className="font-medium">{vehicle.name}</p>
@@ -148,20 +182,57 @@ export const BookingModal = ({ open, onOpenChange, vehicle, startDate, endDate }
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Select Funder *</label>
-              <Select value={selectedFunder} onValueChange={setSelectedFunder}>
-                <SelectTrigger className="bg-background">
-                  <SelectValue placeholder="Choose the funder for this booking" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover">
-                  {funders.map((funder) => (
-                    <SelectItem key={funder.id} value={funder.id}>
-                      {funder.name} ({funder.code})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Select Funder *</label>
+                <Select value={selectedFunder} onValueChange={setSelectedFunder}>
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Choose the funder for this booking" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover">
+                    {funders.map((funder) => (
+                      <SelectItem key={funder.id} value={funder.id}>
+                        {funder.name} ({funder.code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name *</Label>
+                  <Input
+                    id="name"
+                    placeholder="Enter your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="bg-background"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="surname">Surname *</Label>
+                  <Input
+                    id="surname"
+                    placeholder="Enter your surname"
+                    value={surname}
+                    onChange={(e) => setSurname(e.target.value)}
+                    className="bg-background"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-background"
+                />
+              </div>
             </div>
 
             <div className="flex gap-3">
