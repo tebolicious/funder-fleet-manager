@@ -1,3 +1,8 @@
+// Admin credentials for back office
+export const adminCredentials = {
+  username: "admin@goonline.co.za",
+  password: "admin",
+};
 export interface Vehicle {
   id: string;
   name: string;
