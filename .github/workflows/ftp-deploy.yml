@@ -25,6 +25,13 @@ jobs:
       - name: Build application
         run: npm run build
 
+      - name: List build output
+        run: |
+          echo "Contents of dist folder:"
+          ls -la dist/
+          echo "Contents of dist/assets folder:"
+          ls -la dist/assets/
+
       - name: Deploy to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -32,7 +39,7 @@ jobs:
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
-          server-dir: ./
+          server-dir: ./public_html/
           exclude: |
             **/.git*
             **/.git*/**
