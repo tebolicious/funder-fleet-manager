@@ -11,7 +11,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
+    "deploy": "npm run package && curl -T deploy.zip ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/public_html/",
     "package": "npm run build && cd dist && zip -r ../deploy.zip . && cd .. && zip -r deploy.zip api/ database/schema.sql",
     "preview": "vite preview"
   },
