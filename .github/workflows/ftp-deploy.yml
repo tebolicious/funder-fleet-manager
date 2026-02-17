@@ -1,4 +1,4 @@
-name: Deploy to FTP
+name: Deploy Vite React App to FTP
 
 on:
   push:
@@ -10,88 +10,54 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # 1️⃣ Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      # 2️⃣ Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: 18
+          cache: npm
 
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: npm install
 
-      - name: Build application
+      # 4️⃣ Build Vite React
+      - name: Build React project
         run: npm run build
 
-      - name: List build output
+      # 5️⃣ Verify dist folder
+      - name: Verify dist folder
         run: |
-          echo "Contents of dist folder:"
+          echo "DIST CONTENTS:"
           ls -la dist/
-          echo "Contents of dist/assets folder:"
-          ls -la dist/assets/
+          ls -la dist/assets/ || true
 
-      - name: Deploy to FTP
+      # 6️⃣ Copy everything into a temporary deploy folder
+      - name: Prepare deploy folder
+        run: |
+          mkdir deploy_temp
+          cp -r dist/* deploy_temp/
+          cp -r api deploy_temp/api
+          cp -r database deploy_temp/database
+          cp public/.htaccess deploy_temp/
+
+      # 7️⃣ Deploy all together
+      - name: Deploy all to public_html
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: theenterprisehub.co.za
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/
-          server-dir: ./
+          local-dir: ./deploy_temp/
+          server-dir: ./public_html/
+          dangerous-clean-slate: true
+          log-level: verbose
           exclude: |
             **/.git*
             **/.git*/**
-            **/node_modules/**
+            **/node_modules**
             **/.DS_Store
-            **/README.md
-            **/.gitignore
-
-      - name: Deploy API files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: theenterprisehub.co.za
-          username: theenxvmex
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./api/
-          server-dir: ./api/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.DS_Store
-            **/README.md
-            **/.gitignore
-
-      - name: Deploy database files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: theenterprisehub.co.za
-          username: theenxvmex
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./database/
-          server-dir: ./database/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.DS_Store
-            **/README.md
-            **/.gitignore
-
-      - name: Deploy .htaccess
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: theenterprisehub.co.za
-          username: theenxvmex
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./public/
-          server-dir: ./
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.DS_Store
-            **/README.md
-            **/.gitignore
