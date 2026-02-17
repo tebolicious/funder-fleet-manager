@@ -29,34 +29,30 @@ jobs:
       - name: Build React project
         run: npm run build
 
-      # 5️⃣ Detect build folder
-      - name: Detect build folder
+      # 5️⃣ Verify dist folder
+      - name: Verify dist folder
         run: |
-          if [ -d "dist" ]; then
-            echo "BUILD_DIR=dist/" >> $GITHUB_ENV
-          elif [ -d "dist/*" ]; then
-            echo "BUILD_DIR=dist/*/" >> $GITHUB_ENV
-          else
-            echo "No build folder found!"
-            exit 1
-          fi
+          echo "DIST CONTENTS:"
+          ls -la dist/
+          ls -la dist/assets/ || true
 
-      # 6️⃣ Verify build contents (debug)
-      - name: Verify build folder
+      # 6️⃣ Copy everything into a temporary deploy folder
+      - name: Prepare deploy folder
         run: |
-          echo "Contents of $BUILD_DIR:"
-          ls -la $BUILD_DIR
-          echo "Assets folder:"
-          ls -la $BUILD_DIR/assets || true
+          mkdir deploy_temp
+          cp -r dist/* deploy_temp/
+          cp -r api deploy_temp/api
+          cp -r database deploy_temp/database
+          cp public/.htaccess deploy_temp/
 
-      # 7️⃣ Deploy React build to public_html
-      - name: Deploy React build
+      # 7️⃣ Deploy all together
+      - name: Deploy all to public_html
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: theenterprisehub.co.za
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ${{ env.BUILD_DIR }}
+          local-dir: ./deploy_temp/
           server-dir: ./public_html/
           dangerous-clean-slate: true
           log-level: verbose
@@ -65,45 +61,3 @@ jobs:
             **/.git*/**
             **/node_modules**
             **/.DS_Store
-
-      # 8️⃣ Deploy API folder
-      - name: Deploy API folder
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: theenterprisehub.co.za
-          username: theenxvmex
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./api/
-          server-dir: ./public_html/api/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules**
-            **/.DS_Store
-
-      # 9️⃣ Deploy database folder
-      - name: Deploy database folder
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: theenterprisehub.co.za
-          username: theenxvmex
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./database/
-          server-dir: ./public_html/database/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules**
-            **/.DS_Store
-
-      # 🔟 Deploy .htaccess for React routing
-      - name: Deploy .htaccess
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: theenterprisehub.co.za
-          username: theenxvmex
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./public/
-          server-dir: ./public_html/
-          exclude: |
-            **/.git*
