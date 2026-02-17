@@ -86,10 +86,17 @@ export const AdminDashboard = () => {
         capacity: parseInt(vehicle.capacity)
       }));
 
+      // Convert string numbers to actual numbers for bookings
+      const processedBookings = bookingsData.map((booking: any) => ({
+        ...booking,
+        totalKm: booking.totalKm ? parseFloat(booking.totalKm) : null,
+        totalCost: booking.totalCost ? parseFloat(booking.totalCost) : null,
+      }));
+
       setVehicles(processedVehicles);
       setProvinces(provincesData);
       setFunders(fundersData);
-      setBookings(bookingsData);
+      setBookings(processedBookings);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
