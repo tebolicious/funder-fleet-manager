@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Vehicle, funders } from '@/data/mockData';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,27 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { format, differenceInDays } from 'date-fns';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Loader2 } from 'lucide-react';
+
+interface Vehicle {
+  id: string;
+  name: string;
+  model: string;
+  pricePerKm: number;
+  dailyKmAllowance: number;
+  capacity: number;
+  transmission: string;
+  fuelType: string;
+  imageUrl: string;
+  province: string;
+  available: boolean;
+}
+
+interface Funder {
+  id: string;
+  name: string;
+  code: string;
+}
 
 interface BookingModalProps {
   open: boolean;
@@ -17,13 +36,34 @@ interface BookingModalProps {
   endDate: Date | undefined;
 }
 
+const API_BASE = 'https://theenterprisehub.co.za/api';
+
 export const BookingModal = ({ open, onOpenChange, vehicle, startDate, endDate }: BookingModalProps) => {
+  const [funders, setFunders] = useState<Funder[]>([]);
   const [selectedFunder, setSelectedFunder] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [surname, setSurname] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  // Load funders on component mount
+  useEffect(() => {
+    const loadFunders = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/funders.php`);
+        const data = await response.json();
+        setFunders(data);
+      } catch (error) {
+        console.error('Error loading funders:', error);
+      }
+    };
+
+    if (open) {
+      loadFunders();
+    }
+  }, [open]);
 
   if (!vehicle || !startDate || !endDate) return null;
 
@@ -31,7 +71,7 @@ export const BookingModal = ({ open, onOpenChange, vehicle, startDate, endDate }
   const includedKm = days * vehicle.dailyKmAllowance;
   const estimatedCost = includedKm * vehicle.pricePerKm;
 
-  const handleConfirmBooking = () => {
+  const handleConfirmBooking = async () => {
     if (!selectedFunder) {
       toast({
         title: 'Funder Required',
@@ -59,11 +99,51 @@ export const BookingModal = ({ open, onOpenChange, vehicle, startDate, endDate }
       return;
     }
 
-    setIsConfirmed(true);
-    toast({
-      title: 'Booking Confirmed!',
-      description: `Your ${vehicle.name} has been booked successfully.`,
-    });
+    setIsSubmitting(true);
+
+    try {
+      // Create booking via API
+      const bookingData = {
+        vehicleId: vehicle.id,
+        funderId: selectedFunder,
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd'),
+        province: vehicle.province
+      };
+
+      const response = await fetch(`${API_BASE}/bookings.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setIsConfirmed(true);
+        toast({
+          title: 'Booking Confirmed!',
+          description: `Your ${vehicle.name} has been booked successfully. Booking ID: ${result.id}`,
+        });
+      } else {
+        toast({
+          title: 'Booking Failed',
+          description: result.error || 'Failed to create booking. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      toast({
+        title: 'Booking Failed',
+        description: 'Network error. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -236,11 +316,18 @@ export const BookingModal = ({ open, onOpenChange, vehicle, startDate, endDate }
             </div>
 
             <div className="flex gap-3">
-              <Button variant="outline" onClick={handleClose} className="flex-1">
+              <Button variant="outline" onClick={handleClose} className="flex-1" disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button onClick={handleConfirmBooking} className="flex-1">
-                Confirm Booking
+              <Button onClick={handleConfirmBooking} className="flex-1" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating Booking...
+                  </>
+                ) : (
+                  'Confirm Booking'
+                )}
               </Button>
             </div>
           </div>

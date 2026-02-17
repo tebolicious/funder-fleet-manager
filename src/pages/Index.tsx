@@ -1,11 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BookingForm } from '@/components/booking/BookingForm';
 import { VehicleList } from '@/components/vehicles/VehicleList';
 import { BookingModal } from '@/components/booking/BookingModal';
-import { vehicles, Vehicle, mockBookings } from '@/data/mockData';
 import { isWithinInterval } from 'date-fns';
 import heroImage from '@/assets/hero-bg.jpg';
 import { Car } from 'lucide-react';
+
+interface Vehicle {
+  id: string;
+  name: string;
+  model: string;
+  pricePerKm: number;
+  dailyKmAllowance: number;
+  capacity: number;
+  transmission: string;
+  fuelType: string;
+  imageUrl: string;
+  province: string;
+  available: boolean;
+}
+
+interface Booking {
+  id: string;
+  vehicleId: string;
+  funderId: string;
+  startDate: string;
+  endDate: string;
+  province: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+}
+
+const API_BASE = 'https://theenterprisehub.co.za/api';
 
 const Index = () => {
   const [searchParams, setSearchParams] = useState<{
@@ -13,29 +38,67 @@ const Index = () => {
     endDate?: Date;
     province?: string;
   }>({});
+  const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
   const [availableVehicles, setAvailableVehicles] = useState<Vehicle[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Load vehicles and bookings on component mount
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const [vehiclesRes, bookingsRes] = await Promise.all([
+        fetch(`${API_BASE}/vehicles.php`),
+        fetch(`${API_BASE}/bookings.php`)
+      ]);
+
+      const [vehiclesData, bookingsData] = await Promise.all([
+        vehiclesRes.json(),
+        bookingsRes.json()
+      ]);
+
+      setAllVehicles(vehiclesData);
+      setBookings(bookingsData);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = (startDate: Date, endDate: Date, province: string) => {
     setSearchParams({ startDate, endDate, province });
 
     // Filter vehicles by province
-    const vehiclesInProvince = vehicles.filter(v => v.province === province);
+    const vehiclesInProvince = allVehicles.filter(v => v.province === province && v.available);
 
     // Check availability based on existing bookings
     const available = vehiclesInProvince.filter(vehicle => {
-      const vehicleBookings = mockBookings.filter(b => b.vehicleId === vehicle.id);
-      
+      const vehicleBookings = bookings.filter(b =>
+        b.vehicleId === vehicle.id &&
+        (b.status === 'pending' || b.status === 'confirmed')
+      );
+
       // Check if any booking conflicts with the requested dates
       const hasConflict = vehicleBookings.some(booking => {
+        const bookingStart = new Date(booking.startDate);
+        const bookingEnd = new Date(booking.endDate);
+
         const bookingOverlaps = isWithinInterval(startDate, {
-          start: booking.startDate,
-          end: booking.endDate,
+          start: bookingStart,
+          end: bookingEnd,
         }) || isWithinInterval(endDate, {
-          start: booking.startDate,
-          end: booking.endDate,
-        });
+          start: bookingStart,
+          end: bookingEnd,
+        }) || (
+          startDate <= bookingStart && endDate >= bookingEnd
+        );
+
         return bookingOverlaps;
       });
 
@@ -48,6 +111,7 @@ const Index = () => {
   const handleBookVehicle = (vehicle: Vehicle) => {
     setSelectedVehicle(vehicle);
     setIsModalOpen(true);
+  };
   };
 
   return (
