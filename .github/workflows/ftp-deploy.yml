@@ -1,4 +1,4 @@
-name: Deploy Vite React to FTP
+name: Deploy Vite React App to FTP
 
 on:
   push:
@@ -10,45 +10,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repo
+      # 1️⃣ Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Setup node
+      # 2️⃣ Setup Node.js
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
 
-      # Install dependencies
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Build Vite React
-      - name: Build project
+      # 4️⃣ Build Vite React
+      - name: Build React project
         run: npm run build
 
-      # Detect the correct build folder
+      # 5️⃣ Detect build folder
       - name: Detect build folder
         run: |
           if [ -d "dist" ]; then
-            echo "BUILD_DIR=dist" >> $GITHUB_ENV
+            echo "BUILD_DIR=dist/" >> $GITHUB_ENV
           elif [ -d "dist/*" ]; then
-            echo "BUILD_DIR=dist/*" >> $GITHUB_ENV
+            echo "BUILD_DIR=dist/*/" >> $GITHUB_ENV
           else
-            echo "No build folder found"
+            echo "No build folder found!"
             exit 1
           fi
 
-      # Verify folder contents
+      # 6️⃣ Verify build contents (debug)
       - name: Verify build folder
         run: |
           echo "Contents of $BUILD_DIR:"
           ls -la $BUILD_DIR
+          echo "Assets folder:"
           ls -la $BUILD_DIR/assets || true
 
-      # Deploy React build to public_html
+      # 7️⃣ Deploy React build to public_html
       - name: Deploy React build
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -65,7 +66,7 @@ jobs:
             **/node_modules**
             **/.DS_Store
 
-      # Deploy API folder
+      # 8️⃣ Deploy API folder
       - name: Deploy API folder
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -80,7 +81,7 @@ jobs:
             **/node_modules**
             **/.DS_Store
 
-      # Deploy database folder
+      # 9️⃣ Deploy database folder
       - name: Deploy database folder
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -95,7 +96,7 @@ jobs:
             **/node_modules**
             **/.DS_Store
 
-      # Deploy .htaccess
+      # 🔟 Deploy .htaccess for React routing
       - name: Deploy .htaccess
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -106,6 +107,3 @@ jobs:
           server-dir: ./public_html/
           exclude: |
             **/.git*
-            **/.git*/**
-            **/node_modules**
-            **/.DS_Store
