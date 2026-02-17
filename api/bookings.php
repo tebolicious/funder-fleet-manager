@@ -86,11 +86,29 @@ switch ($method) {
             sendResponse(['error' => 'Vehicle is not available for the selected dates'], 409);
         }
 
-        $stmt = $conn->prepare("INSERT INTO bookings (id, vehicleId, funderId, startDate, endDate, province, customerName, customerSurname, customerEmail, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        // Fetch vehicle details
+        $stmt = $conn->prepare("SELECT pricePerKm, dailyKmAllowance FROM vehicles WHERE id = ?");
+        $stmt->bind_param("s", $data['vehicleId']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $vehicle = $result->fetch_assoc();
+
+        if (!$vehicle) {
+            sendResponse(['error' => 'Vehicle not found'], 404);
+        }
+
+        // Calculate totalKm and totalCost
+        $start = new DateTime($data['startDate']);
+        $end = new DateTime($data['endDate']);
+        $days = $start->diff($end)->days + 1; // inclusive
+        $totalKm = $days * $vehicle['dailyKmAllowance'];
+        $totalCost = $totalKm * $vehicle['pricePerKm'];
+
+        $stmt = $conn->prepare("INSERT INTO bookings (id, vehicleId, funderId, startDate, endDate, province, customerName, customerSurname, customerEmail, status, totalKm, totalCost) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $id = 'B' . strtoupper(substr(uniqid(), -6));
         $status = $data['status'] ?? 'pending';
 
-        $stmt->bind_param("ssssssssss",
+        $stmt->bind_param("ssssssssssdd",
             $id,
             $data['vehicleId'],
             $data['funderId'],
@@ -100,11 +118,15 @@ switch ($method) {
             $data['customerName'],
             $data['customerSurname'],
             $data['customerEmail'],
-            $status
+            $status,
+            $totalKm,
+            $totalCost
         );
 
         if ($stmt->execute()) {
             $data['id'] = $id;
+            $data['totalKm'] = $totalKm;
+            $data['totalCost'] = $totalCost;
             
             // Send confirmation email
             sendBookingConfirmationEmail($data, $conn);
