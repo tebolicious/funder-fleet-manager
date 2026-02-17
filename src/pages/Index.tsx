@@ -30,7 +30,8 @@ interface Booking {
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
 }
 
-const API_BASE = 'https://theenterprisehub.co.za/api';
+// API base URL - use relative path for local development, absolute for production
+const API_BASE = import.meta.env.DEV ? '/api' : 'https://theenterprisehub.co.za/api';
 
 const Index = () => {
   const [searchParams, setSearchParams] = useState<{

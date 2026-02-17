@@ -45,7 +45,8 @@ interface Booking {
   totalCost?: number;
 }
 
-const API_BASE = 'https://theenterprisehub.co.za/api';
+// API base URL - use relative path for local development, absolute for production
+const API_BASE = import.meta.env.DEV ? '/api' : 'https://theenterprisehub.co.za/api';
 
 export const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<'vehicles' | 'provinces' | 'funders' | 'bookings'>('vehicles');
