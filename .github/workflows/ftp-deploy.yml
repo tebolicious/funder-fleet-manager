@@ -1,4 +1,4 @@
-name: Deploy to FTP
+name: Deploy React App to FTP
 
 on:
   push:
@@ -10,37 +10,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout repo
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Setup node
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: 18
+          cache: npm
 
+      # Install dependencies
       - name: Install dependencies
         run: npm install
 
-      - name: Build application
+      # Build React app
+      - name: Build React application
         run: npm run build
 
-      - name: List build output
+      # Confirm build exists
+      - name: Verify build output
         run: |
-          echo "Contents of dist folder:"
-          ls -la dist/
-          echo "Contents of dist/assets folder:"
-          ls -la dist/assets/
+          echo "Checking React build folder"
+          ls -la build/
+          echo "Static assets:"
+          ls -la build/static/ || true
 
-      # Deploy Angular build to public_html
-      - name: Deploy Angular build
+      # 🚀 Deploy React build to public_html
+      - name: Deploy React build to public_html
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: theenterprisehub.co.za
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/
+          local-dir: ./build/
           server-dir: ./public_html/
+          dangerous-clean-slate: true
+          log-level: verbose
           exclude: |
             **/.git*
             **/.git*/**
@@ -49,7 +56,7 @@ jobs:
             **/README.md
             **/.gitignore
 
-      # Deploy API files to public_html/api
+      # 🚀 Deploy API folder
       - name: Deploy API files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -63,10 +70,8 @@ jobs:
             **/.git*/**
             **/node_modules/**
             **/.DS_Store
-            **/README.md
-            **/.gitignore
 
-      # Deploy database files to public_html/database
+      # 🚀 Deploy database folder
       - name: Deploy database files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -80,10 +85,8 @@ jobs:
             **/.git*/**
             **/node_modules/**
             **/.DS_Store
-            **/README.md
-            **/.gitignore
 
-      # Deploy .htaccess to public_html
+      # 🚀 Deploy .htaccess (React routing fix)
       - name: Deploy .htaccess
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -97,5 +100,3 @@ jobs:
             **/.git*/**
             **/node_modules/**
             **/.DS_Store
-            **/README.md
-            **/.gitignore
