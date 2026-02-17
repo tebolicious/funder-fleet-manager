@@ -1,4 +1,4 @@
-name: Deploy React App to FTP
+name: Deploy Vite React to FTP
 
 on:
   push:
@@ -11,40 +11,40 @@ jobs:
 
     steps:
       # Checkout repo
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       # Setup node
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
 
-      # Install dependencies
+      # Install deps
       - name: Install dependencies
         run: npm install
 
-      # Build React app
-      - name: Build React application
+      # Build Vite React
+      - name: Build project
         run: npm run build
 
-      # Confirm build exists
-      - name: Verify build output
+      # Confirm build output exists
+      - name: Verify dist folder
         run: |
-          echo "Checking React build folder"
-          ls -la build/
-          echo "Static assets:"
-          ls -la build/static/ || true
+          echo "DIST CONTENTS:"
+          ls -la dist/
+          echo "ASSETS:"
+          ls -la dist/assets/ || true
 
-      # 🚀 Deploy React build to public_html
-      - name: Deploy React build to public_html
+      # 🚀 Deploy React build
+      - name: Deploy React to public_html
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: theenterprisehub.co.za
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./build/
+          local-dir: ./dist/
           server-dir: ./public_html/
           dangerous-clean-slate: true
           log-level: verbose
@@ -56,8 +56,8 @@ jobs:
             **/README.md
             **/.gitignore
 
-      # 🚀 Deploy API folder
-      - name: Deploy API files
+      # 🚀 Deploy API
+      - name: Deploy API folder
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: theenterprisehub.co.za
@@ -71,8 +71,8 @@ jobs:
             **/node_modules/**
             **/.DS_Store
 
-      # 🚀 Deploy database folder
-      - name: Deploy database files
+      # 🚀 Deploy database
+      - name: Deploy database folder
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: theenterprisehub.co.za
