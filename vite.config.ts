@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  base: "/funder-fleet-manager/",   // 👈 REQUIRED FOR GITHUB PAGES
+  base: "/",   // Changed for FTP deployment
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
