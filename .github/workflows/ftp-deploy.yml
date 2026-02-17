@@ -39,7 +39,7 @@ jobs:
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
-          server-dir: ./public_html/
+          server-dir: ./
           exclude: |
             **/.git*
             **/.git*/**
@@ -55,7 +55,7 @@ jobs:
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./api/
-          server-dir: ./public_html/api/
+          server-dir: ./api/
           exclude: |
             **/.git*
             **/.git*/**
@@ -71,7 +71,7 @@ jobs:
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./database/
-          server-dir: ./public_html/database/
+          server-dir: ./database/
           exclude: |
             **/.git*
             **/.git*/**
@@ -87,7 +87,7 @@ jobs:
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./public/
-          server-dir: ./public_html/
+          server-dir: ./
           exclude: |
             **/.git*
             **/.git*/**
