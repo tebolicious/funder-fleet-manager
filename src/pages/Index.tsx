@@ -66,11 +66,11 @@ const Index = () => {
             <div className="flex items-center gap-3 mb-4">
               <Car className="h-10 w-10" />
               <h1 className="text-4xl md:text-5xl font-bold">
-                Vehicle Rental Management
+                Thandubomi Vehicle Management
               </h1>
             </div>
             <p className="text-xl text-primary-foreground/90 mb-8">
-              Professional vehicle rental services for NGO funders across South Africa
+              Professional vehicle management services for NGO funders across South Africa
             </p>
           </div>
         </div>
@@ -89,7 +89,7 @@ const Index = () => {
         {!searchParams.startDate && (
           <div className="text-center py-12">
             <h2 className="text-2xl font-semibold text-foreground mb-4">
-              Welcome to Our Vehicle Rental Service
+              Welcome to Our Vehicle Management Service
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Select your booking dates and province to view available vehicles. 
