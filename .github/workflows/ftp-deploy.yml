@@ -32,14 +32,15 @@ jobs:
           echo "Contents of dist/assets folder:"
           ls -la dist/assets/
 
-      - name: Deploy to FTP
+      # Deploy Angular build to public_html
+      - name: Deploy Angular build
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: theenterprisehub.co.za
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
-          server-dir: ./
+          server-dir: ./public_html/
           exclude: |
             **/.git*
             **/.git*/**
@@ -48,6 +49,7 @@ jobs:
             **/README.md
             **/.gitignore
 
+      # Deploy API files to public_html/api
       - name: Deploy API files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -55,7 +57,7 @@ jobs:
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./api/
-          server-dir: ./api/
+          server-dir: ./public_html/api/
           exclude: |
             **/.git*
             **/.git*/**
@@ -64,6 +66,7 @@ jobs:
             **/README.md
             **/.gitignore
 
+      # Deploy database files to public_html/database
       - name: Deploy database files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -71,7 +74,7 @@ jobs:
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./database/
-          server-dir: ./database/
+          server-dir: ./public_html/database/
           exclude: |
             **/.git*
             **/.git*/**
@@ -80,6 +83,7 @@ jobs:
             **/README.md
             **/.gitignore
 
+      # Deploy .htaccess to public_html
       - name: Deploy .htaccess
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -87,7 +91,7 @@ jobs:
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./public/
-          server-dir: ./
+          server-dir: ./public_html/
           exclude: |
             **/.git*
             **/.git*/**
