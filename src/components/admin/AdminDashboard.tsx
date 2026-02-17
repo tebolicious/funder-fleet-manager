@@ -77,7 +77,15 @@ export const AdminDashboard = () => {
         bookingsRes.json()
       ]);
 
-      setVehicles(vehiclesData);
+      // Convert string numbers to actual numbers for vehicles
+      const processedVehicles = vehiclesData.map((vehicle: any) => ({
+        ...vehicle,
+        pricePerKm: parseFloat(vehicle.pricePerKm),
+        dailyKmAllowance: parseInt(vehicle.dailyKmAllowance),
+        capacity: parseInt(vehicle.capacity)
+      }));
+
+      setVehicles(processedVehicles);
       setProvinces(provincesData);
       setFunders(fundersData);
       setBookings(bookingsData);

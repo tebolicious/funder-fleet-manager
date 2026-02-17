@@ -57,12 +57,18 @@ const Index = () => {
         fetch(`${API_BASE}/bookings.php`)
       ]);
 
-      const [vehiclesData, bookingsData] = await Promise.all([
-        vehiclesRes.json(),
-        bookingsRes.json()
-      ]);
+      const vehiclesData = await vehiclesRes.json();
+      const bookingsData = await bookingsRes.json();
 
-      setAllVehicles(vehiclesData);
+      // Convert string numbers to actual numbers for vehicles
+      const processedVehicles = vehiclesData.map((vehicle: any) => ({
+        ...vehicle,
+        pricePerKm: parseFloat(vehicle.pricePerKm),
+        dailyKmAllowance: parseInt(vehicle.dailyKmAllowance),
+        capacity: parseInt(vehicle.capacity)
+      }));
+
+      setAllVehicles(processedVehicles);
       setBookings(bookingsData);
     } catch (error) {
       console.error('Error loading data:', error);
