@@ -298,6 +298,8 @@ export const AdminDashboard = () => {
                   <TableHead>Funder</TableHead>
                   <TableHead>Province</TableHead>
                   <TableHead>Dates</TableHead>
+                  <TableHead>Total Km</TableHead>
+                  <TableHead>Total Cost</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -312,6 +314,8 @@ export const AdminDashboard = () => {
                     <TableCell>
                       {new Date(booking.startDate).toLocaleDateString()} - {new Date(booking.endDate).toLocaleDateString()}
                     </TableCell>
+                    <TableCell>{booking.totalKm ? booking.totalKm.toFixed(2) : 'N/A'}</TableCell>
+                    <TableCell>{booking.totalCost ? `R${booking.totalCost.toFixed(2)}` : 'N/A'}</TableCell>
                     <TableCell>
                       <Select
                         value={booking.status}
