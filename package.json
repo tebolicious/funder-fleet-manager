@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
+    "package": "npm run build && zip -r deploy.zip dist/ api/ database/schema.sql",
     "preview": "vite preview"
   },
   "dependencies": {
