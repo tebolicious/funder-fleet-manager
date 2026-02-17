@@ -109,7 +109,10 @@ export const BookingModal = ({ open, onOpenChange, vehicle, startDate, endDate }
         funderId: selectedFunder,
         startDate: format(startDate, 'yyyy-MM-dd'),
         endDate: format(endDate, 'yyyy-MM-dd'),
-        province: vehicle.province
+        province: vehicle.province,
+        customerName: name,
+        customerSurname: surname,
+        customerEmail: email
       };
 
       const response = await fetch(`${API_BASE}/bookings.php`, {

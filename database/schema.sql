@@ -36,6 +36,9 @@ CREATE TABLE IF NOT EXISTS bookings (
     startDate DATE NOT NULL,
     endDate DATE NOT NULL,
     province VARCHAR(100) NOT NULL,
+    customerName VARCHAR(100) NOT NULL,
+    customerSurname VARCHAR(100) NOT NULL,
+    customerEmail VARCHAR(255) NOT NULL,
     status ENUM('pending', 'confirmed', 'completed', 'cancelled') DEFAULT 'pending',
     totalKm DECIMAL(10,2) NULL,
     totalCost DECIMAL(10,2) NULL,
@@ -89,5 +92,5 @@ INSERT IGNORE INTO vehicles (id, name, model, pricePerKm, dailyKmAllowance, capa
 ('15', 'Toyota Avanza', '2023', 5.20, 100, 7, 'Manual', 'Petrol', 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800', 'KwaZulu-Natal', true);
 
 -- Insert sample booking
-INSERT IGNORE INTO bookings (id, vehicleId, funderId, startDate, endDate, province, status) VALUES
-('B001', '1', '1', '2025-01-15', '2025-01-20', 'Limpopo', 'confirmed');
+INSERT IGNORE INTO bookings (id, vehicleId, funderId, startDate, endDate, province, customerName, customerSurname, customerEmail, status) VALUES
+('B001', '1', '1', '2025-01-15', '2025-01-20', 'Limpopo', 'John', 'Doe', 'john.doe@example.com', 'confirmed');
