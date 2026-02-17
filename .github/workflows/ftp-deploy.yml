@@ -21,7 +21,7 @@ jobs:
           node-version: 18
           cache: npm
 
-      # Install deps
+      # Install dependencies
       - name: Install dependencies
         run: npm install
 
@@ -29,34 +29,43 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # Confirm build output exists
-      - name: Verify dist folder
+      # Detect the correct build folder
+      - name: Detect build folder
         run: |
-          echo "DIST CONTENTS:"
-          ls -la dist/
-          echo "ASSETS:"
-          ls -la dist/assets/ || true
+          if [ -d "dist" ]; then
+            echo "BUILD_DIR=dist" >> $GITHUB_ENV
+          elif [ -d "dist/*" ]; then
+            echo "BUILD_DIR=dist/*" >> $GITHUB_ENV
+          else
+            echo "No build folder found"
+            exit 1
+          fi
 
-      # 🚀 Deploy React build
-      - name: Deploy React to public_html
+      # Verify folder contents
+      - name: Verify build folder
+        run: |
+          echo "Contents of $BUILD_DIR:"
+          ls -la $BUILD_DIR
+          ls -la $BUILD_DIR/assets || true
+
+      # Deploy React build to public_html
+      - name: Deploy React build
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: theenterprisehub.co.za
           username: theenxvmex
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/
+          local-dir: ${{ env.BUILD_DIR }}
           server-dir: ./public_html/
           dangerous-clean-slate: true
           log-level: verbose
           exclude: |
             **/.git*
             **/.git*/**
-            **/node_modules/**
+            **/node_modules**
             **/.DS_Store
-            **/README.md
-            **/.gitignore
 
-      # 🚀 Deploy API
+      # Deploy API folder
       - name: Deploy API folder
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -68,10 +77,10 @@ jobs:
           exclude: |
             **/.git*
             **/.git*/**
-            **/node_modules/**
+            **/node_modules**
             **/.DS_Store
 
-      # 🚀 Deploy database
+      # Deploy database folder
       - name: Deploy database folder
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -83,10 +92,10 @@ jobs:
           exclude: |
             **/.git*
             **/.git*/**
-            **/node_modules/**
+            **/node_modules**
             **/.DS_Store
 
-      # 🚀 Deploy .htaccess (React routing fix)
+      # Deploy .htaccess
       - name: Deploy .htaccess
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -98,5 +107,5 @@ jobs:
           exclude: |
             **/.git*
             **/.git*/**
-            **/node_modules/**
+            **/node_modules**
             **/.DS_Store
