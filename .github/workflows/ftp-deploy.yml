@@ -47,3 +47,51 @@ jobs:
             **/.DS_Store
             **/README.md
             **/.gitignore
+
+      - name: Deploy API files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: theenterprisehub.co.za
+          username: theenxvmex
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./api/
+          server-dir: ./public_html/api/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.DS_Store
+            **/README.md
+            **/.gitignore
+
+      - name: Deploy database files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: theenterprisehub.co.za
+          username: theenxvmex
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./database/
+          server-dir: ./public_html/database/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.DS_Store
+            **/README.md
+            **/.gitignore
+
+      - name: Deploy .htaccess
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: theenterprisehub.co.za
+          username: theenxvmex
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./public/
+          server-dir: ./public_html/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.DS_Store
+            **/README.md
+            **/.gitignore
