@@ -141,7 +141,7 @@ export const AdminDashboard = () => {
           <Button
             key={tab.key}
             variant={activeTab === tab.key ? 'default' : 'outline'}
-            onClick={() => setActiveTab(tab.key as any)}
+            onClick={() => setActiveTab(tab.key as 'vehicles' | 'provinces' | 'funders' | 'bookings')}
           >
             {tab.label}
           </Button>

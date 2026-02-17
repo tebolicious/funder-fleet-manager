@@ -112,7 +112,6 @@ const Index = () => {
     setSelectedVehicle(vehicle);
     setIsModalOpen(true);
   };
-  };
 
   return (
     <div className="min-h-screen bg-background">
